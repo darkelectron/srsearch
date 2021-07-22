@@ -1,4 +1,9 @@
 # srsearch
+<p align="center">
+<img src="./scrot.png" />
+</p>
+![image](scrot.png)
+
 Search subreddit using dmenu.
 
 In cases where input is not required, `fzf` or `rofi` can be used.
