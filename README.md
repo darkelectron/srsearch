@@ -14,3 +14,6 @@ In cases where input is not required, `fzf` or `rofi` can be used.
 - type a subreddit to search.
 - type in search term.
 - you'll see results in a dmenu window, choose topic or link, which will be copied to your clipboard.
+
+## TODO
+- [ ] results limit.
