@@ -1,7 +1,8 @@
 #! /usr/bin/env bash
-# version: 0.1
+# version: 0.2
 
 base_site="https://www.reddit.com"
+results_json="results.json"
 
 # get subreddit
 subreddit=$(echo | dmenu -p "Enter Subreddit Name: " | sed "s/ //g")
@@ -16,10 +17,10 @@ fi
 # use $search to view in browser
 if [ -n "$search_term" ]; then
   printf "Downloading Search Results For: %s ..." "$search"
-  curl -H "User-Agent: 'your bot 0.1'" "$search" > file.json
+  curl -H "User-Agent: 'your bot 0.1'" "$search" > "$results_json"
 
-  if [ -s file.json ]; then
-    permalink=$(jq '.data.children[] | .data["title", "permalink"]' file.json | paste -d "|" - - | dmenu -l 15 | cut -d'|' -f 2 | xargs)
+  if [ -s "$results_json" ]; then
+    permalink=$(jq '.data.children[] | .data["title", "permalink"]' "$results_json" | paste -d "|" - - | dmenu -l 15 | cut -d'|' -f 2 | xargs)
 
     if [ -n "$permalink" ]; then
       notify-send "Link in clipboard"
