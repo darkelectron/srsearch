@@ -1,6 +1,8 @@
 #! /usr/bin/env bash
 # version: 0.1
 
+base_site="https://www.reddit.com"
+
 # get subreddit
 subreddit=$(echo | dmenu -p "Enter Subreddit Name: " | sed "s/ //g")
 
@@ -12,14 +14,18 @@ fi
 
 # getting link
 # use $search to view in browser
-if [ -n "$search" ]; then
-  printf "Opening Link: %s ..." "$search"
-  # firefox -new-tab "$search"
+if [ -n "$search_term" ]; then
+  printf "Downloading Search Results For: %s ..." "$search"
   curl -H "User-Agent: 'your bot 0.1'" "$search" > file.json
 
   if [ -s file.json ]; then
-    # sed for removing comma at the end
-    permalink=$(jq . file.json | grep -E '"title":|"permalink":' | sed 's/^[ \t]*//' | sed 's/,\([^,]*\)$/ \1/' | paste -d "|" - - | sed 's/"title"://' | sed 's/"permalink"://' | dmenu -l 15 | cut -d'|' -f 2 | xargs)
-    echo "https://www.reddit.com$permalink"
+    permalink=$(jq '.data.children[] | .data["title", "permalink"]' file.json | paste -d "|" - - | dmenu -l 15 | cut -d'|' -f 2 | xargs)
+
+    if [ -n "$permalink" ]; then
+      notify-send "Link in clipboard"
+      echo "$base_site$permalink" | xclip -selection c
+    fi
+  else
+    notify-send "No Results Found"
   fi
 fi
