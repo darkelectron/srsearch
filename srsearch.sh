@@ -9,7 +9,7 @@ subreddit=$(echo | dmenu -p "Enter Subreddit Name: " | sed "s/ //g")
 
 # get search term
 if [ -n "$subreddit" ]; then
-  search_term=$(echo | dmenu -p "Enter Search Term: ")
+  search_term=$(echo | dmenu -p "Enter Search Term: " | sed "s/ /%20/g")
   search="$(echo 'https://www.reddit.com/r/SUBREDDIT/search/.json?q=SEARCH_TERM&restrict_sr=1' | sed "s/SUBREDDIT/$subreddit/" | sed "s/SEARCH_TERM/$search_term/")"
 fi
 
