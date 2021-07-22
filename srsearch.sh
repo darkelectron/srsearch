@@ -19,7 +19,9 @@ if [ -n "$search_term" ]; then
   printf "Downloading Search Results For: %s ..." "$search"
   curl -H "User-Agent: 'your bot 0.1'" "$search" > "$results_json"
 
-  if [ -s "$results_json" ]; then
+  no_link="$(grep -c permalink $results_json)"
+
+  if [ -s "$results_json" ] && [ "$no_link" -ne 0 ]; then
     permalink=$(jq '.data.children[] | .data["title", "permalink"]' "$results_json" | paste -d "|" - - | dmenu -l 15 | cut -d'|' -f 2 | xargs)
 
     if [ -n "$permalink" ]; then
