@@ -2,7 +2,6 @@
 <p align="center">
 <img src="./scrot.png" />
 </p>
-![image](scrot.png)
 
 Search subreddit using dmenu.
 
