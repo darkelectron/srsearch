@@ -2,7 +2,7 @@
 # version: 0.2
 
 base_site="https://www.reddit.com"
-results_json="results.json"
+results_json="/tmp/results.json"
 
 # get subreddit
 subreddit=$(echo | dmenu -p "Enter Subreddit Name: " | sed "s/ //g")
