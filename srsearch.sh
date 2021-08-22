@@ -21,14 +21,22 @@ if [ -n "$search_term" ]; then
 
   no_link="$(grep -c permalink $results_json)"
 
-  if [ -s "$results_json" ] && [ "$no_link" -ne 0 ]; then
-    permalink=$(jq -r '.data.children[] | .data["title", "permalink"]' "$results_json" | paste -d "|" - - | dmenu -l 15 | cut -d'|' -f 2 | xargs)
+  # loop
+  while :
+  do
+    if [ -s "$results_json" ] && [ "$no_link" -ne 0 ]; then
+      permalink=$(jq -r '.data.children[] | .data["title", "permalink"]' "$results_json" | paste -d "|" - - | dmenu -l 15 | cut -d'|' -f 2 | xargs)
 
-    if [ -n "$permalink" ]; then
-      notify-send "Link in clipboard"
-      echo "$base_site$permalink" | xclip -selection c
+      if [ -n "$permalink" ]; then
+        notify-send "Link in clipboard"
+        firefox $base_site$permalink
+        echo "$base_site$permalink" | xclip -selection c
+      else
+        break
+      fi
+    else
+      notify-send "No Results Found"
+      break
     fi
-  else
-    notify-send "No Results Found"
-  fi
+  done
 fi

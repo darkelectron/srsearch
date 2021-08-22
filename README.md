@@ -21,5 +21,5 @@ In cases where input is not required, `fzf` or `rofi` can be used.
 
 ## TODO
 - [ ] results limit.
-- [ ] loop through results
+- [x] loop through results
 - [ ] choose what to do with results
