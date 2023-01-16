@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 # version: 0.2
 
-base_site="https://www.reddit.com"
+base_site="https://old.reddit.com"
 results_json="/tmp/results.json"
 
 # get subreddit
