@@ -5,11 +5,11 @@ base_site="https://old.reddit.com"
 results_json="/tmp/results.json"
 
 # get subreddit
-subreddit=$(echo | dmenu -h 25 -X 5 -Y 5 -p "Enter Subreddit Name: " | sed "s/ //g")
+subreddit=$(echo | dmenu -p "Enter Subreddit Name: " | sed "s/ //g")
 
 # get search term
 if [ -n "$subreddit" ]; then
-  search_term=$(echo | dmenu -h 25 -X 5 -Y 5 -p "Enter Search Term: " | sed "s/ /%20/g")
+  search_term=$(echo | dmenu -p "Enter Search Term: " | sed "s/ /%20/g")
   search="$(echo 'https://www.reddit.com/r/SUBREDDIT/search/.json?q=SEARCH_TERM&restrict_sr=1' | sed "s/SUBREDDIT/$subreddit/" | sed "s/SEARCH_TERM/$search_term/")"
 fi
 
@@ -25,7 +25,7 @@ if [ -n "$search_term" ]; then
   while :
   do
     if [ -s "$results_json" ] && [ "$no_link" -ne 0 ]; then
-      permalink=$(jq -r '.data.children[] | .data["title", "permalink"]' "$results_json" | paste -d "|" - - | dmenu -h 25 -X 5 -Y 5 -l 15 | cut -d'|' -f 2 | xargs)
+      permalink=$(jq -r '.data.children[] | .data["title", "permalink"]' "$results_json" | paste -d "|" - - | dmenu -p "Results: " | cut -d'|' -f 2 | xargs)
 
       if [ -n "$permalink" ]; then
         notify-send "Link in clipboard"
