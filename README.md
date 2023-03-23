@@ -5,7 +5,7 @@
 
 Search subreddit using dmenu.
 
-In cases where input is not required, `fzf` or `rofi` can be used.
+Note: In cases where input is not required, `fzf` or `rofi` can be used.
 
 ## Dependencies
 - jq
@@ -14,12 +14,12 @@ In cases where input is not required, `fzf` or `rofi` can be used.
 - curl
 
 ## How to use
-- run script and you'll see a dmenu window.
+- run script with either `clipboard` or `browser` argument.
 - type a subreddit to search, _e.g commandline_.
 - type in search term, _e.g bash is cool_.
-- you'll see results in a dmenu window, choose topic or link, which will be copied to your clipboard and opened through `firefox`.
+- you'll see results in a dmenu window. Pressing enter will either copy result link to clipboard or open link in your browser (requires `$BROWSER` environment variable).
 
 ## TODO
-- [ ] results limit.
+- [ ] results limit
 - [x] loop through results
-- [ ] ~~choose what to do with results~~
+- [x] choose what to do with results
