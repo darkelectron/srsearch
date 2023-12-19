@@ -1,9 +1,9 @@
 #! /usr/bin/env bash
-# version: 0.2
+# version: 0.3.1
 
 if [ -z "$1" ]; then
   # printf "Usage: $0 [clipboard|browser]"
-  notify-send "srsearch" "No Arguments Supplied"
+  notify-send -i reddit "srsearch" "No Arguments Supplied"
   exit 1
 fi
 
@@ -23,7 +23,7 @@ fi
 # use $search to view in browser
 if [ -n "$search_term" ]; then
   # printf "Downloading Search Results For: %s ..." "$search"
-  notify-send "srsearch" "Downloading JSON ..."
+  notify-send -i reddit "srsearch" "Downloading JSON ..."
   curl -H "User-Agent: 'your bot 0.1'" "$search" > "$results_json"
 
   no_link="$(grep -c permalink $results_json)"
@@ -43,13 +43,13 @@ if [ -n "$search_term" ]; then
             $BROWSER "$base_site$permalink"
             ;;
           *)
-            notify-send "srsearch" "incorrect option"  # will remove later
+            notify-send -i reddit "srsearch" "incorrect option"  # will remove later
         esac
       else
         break
       fi
     else
-      notify-send "srsearch" "No Results Found"
+      notify-send -i reddit "srsearch" "No Results Found"
       break
     fi
   done
