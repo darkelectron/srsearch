@@ -11,7 +11,21 @@ base_site="https://old.reddit.com"
 results_json="/tmp/results.json"
 
 # get subreddit
-subreddit=$(echo | dmenu -p "Enter Subreddit Name: " | sed "s/ //g")
+while true
+do
+  subreddit=$(echo | dmenu -p "Enter Subreddit Name: " | sed "s/ //g")
+
+  http_code="$(curl -H "User-Agent: 'bot 1.0'" -I "https://old.reddit.com/r/$subreddit/about.json" -w "%{http_code}" -s -o /dev/null)"
+
+  echo "$http_code"
+
+  if [ 200 -eq "$http_code" ]; then
+    break
+  else
+    notify-send -i reddit -u critical "srsearch" "Subreddit Does Not Seem to Exist"
+    continue
+  fi
+done
 
 # get search term
 if [ -n "$subreddit" ]; then
