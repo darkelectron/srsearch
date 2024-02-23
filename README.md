@@ -23,4 +23,4 @@ Note: In cases where input is not required, `fzf` or `rofi` can be used.
 - [ ] results limit
 - [x] loop through results
 - [x] choose what to do with results
-- [ ] make sure subreddit exists
+- [x] make sure subreddit exists
