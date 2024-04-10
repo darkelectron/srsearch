@@ -15,9 +15,11 @@ while true
 do
   subreddit=$(echo | dmenu -p "Enter Subreddit Name: " | sed "s/ //g")
 
-  http_code="$(curl -H "User-Agent: 'bot 1.0'" -I "https://old.reddit.com/r/$subreddit/about.json" -w "%{http_code}" -s -o /dev/null)"
-
-  echo "$http_code"
+  if [ -n "$http_code" ]; then
+    http_code="$(curl -H "User-Agent: 'bot 1.0'" -I "https://old.reddit.com/r/$subreddit/about.json" -w "%{http_code}" -s -o /dev/null)"
+  else
+    exit 0
+  fi
 
   if [ 200 -eq "$http_code" ]; then
     break
@@ -30,8 +32,9 @@ done
 # get search term
 if [ -n "$subreddit" ]; then
   search_term=$(echo | dmenu -p "Enter Search Term: " | sed "s/ /%20/g")
-  search="$(echo 'https://www.reddit.com/r/SUBREDDIT/search/.json?q=SEARCH_TERM&restrict_sr=1' | sed "s/SUBREDDIT/$subreddit/" | sed "s/SEARCH_TERM/$search_term/")"
+  search="$(echo 'https://www.reddit.com/r/SUBREDDIT/search/.json?q=SEARCH_TERM&restrict_sr=on&include_over_18=on' | sed "s/SUBREDDIT/$subreddit/" | sed "s/SEARCH_TERM/$search_term/")"
 fi
+# https://old.reddit.com/r/joi/search?q=angela&restrict_sr=on&include_over_18=on
 
 # getting link
 # use $search to view in browser
