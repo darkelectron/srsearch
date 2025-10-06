@@ -13,7 +13,7 @@ results_json="/tmp/results.json"
 # get subreddit
 while true
 do
-  subreddit=$(echo | dmenu -p "Enter Subreddit Name: " | sed "s/ //g")
+  subreddit=$(echo | fuzzel --dmenu --prompt "Enter Subreddit Name: " | sed "s/ //g")
 
   if [ -n "$http_code" ]; then
     http_code="$(curl -H "User-Agent: 'bot 1.0'" -I "https://old.reddit.com/r/$subreddit/about.json" -w "%{http_code}" -s -o /dev/null)"
@@ -31,7 +31,7 @@ done
 
 # get search term
 if [ -n "$subreddit" ]; then
-  search_term=$(echo | dmenu -p "Enter Search Term: " | sed "s/ /%20/g")
+  search_term=$(echo | fuzzel --dmenu --prompt "Enter Search Term: " | sed "s/ /%20/g")
   search="$(echo 'https://www.reddit.com/r/SUBREDDIT/search/.json?q=SEARCH_TERM&restrict_sr=on&include_over_18=on' | sed "s/SUBREDDIT/$subreddit/" | sed "s/SEARCH_TERM/$search_term/")"
 fi
 # https://old.reddit.com/r/joi/search?q=angela&restrict_sr=on&include_over_18=on
@@ -49,7 +49,7 @@ if [ -n "$search_term" ]; then
   while :
   do
     if [ -s "$results_json" ] && [ "$no_link" -ne 0 ]; then
-      permalink=$(jq -r '.data.children[] | .data["title", "permalink"]' "$results_json" | paste -d "|" - - | dmenu -p "Results: " | cut -d'|' -f 2 | xargs)
+      permalink=$(jq -r '.data.children[] | .data["title", "permalink"]' "$results_json" | paste -d "|" - - | fuzzel --dmenu --prompt "Results: " | cut -d'|' -f 2 | xargs)
 
       if [ -n "$permalink" ]; then
         case "$1" in
