@@ -1,73 +1,69 @@
-#! /usr/bin/env bash
-# version: 0.3.1
+#!/usr/bin/env bash
+# version: 0.3.2
 
-if [ -z "$1" ]; then
-  # printf "Usage: $0 [clipboard|browser]"
-  notify-send -i reddit "srsearch" "No Arguments Supplied"
-  exit 1
-fi
+set -e
 
 base_site="https://old.reddit.com"
 results_json="/tmp/results.json"
 
-# get subreddit
-while true
-do
-  subreddit=$(echo | fuzzel --dmenu --prompt "Enter Subreddit Name: " | sed "s/ //g")
+usage() {
+  notify-send -i reddit "srsearch" "Usage: $0 [clipboard|browser]"
+  exit 1
+}
 
-  if [ -n "$http_code" ]; then
-    http_code="$(curl -H "User-Agent: 'bot 1.0'" -I "https://old.reddit.com/r/$subreddit/about.json" -w "%{http_code}" -s -o /dev/null)"
-  else
-    exit 0
-  fi
+if [[ -z "$1" || ! "$1" =~ ^(clipboard|browser)$ ]]; then
+  usage
+fi
 
-  if [ 200 -eq "$http_code" ]; then
+# Subreddit input loop
+while true; do
+  subreddit=$(echo | fuzzel --dmenu --prompt "Enter Subreddit Name:" | sed "s/ //g")
+  [[ -z "$subreddit" ]] && notify-send -i reddit "srsearch" "No subreddit entered" && exit 1
+
+  http_code=$(curl -H "User-Agent: srsearch/1.0" -s -o /dev/null -w "%{http_code}" \
+    "https://old.reddit.com/r/$subreddit/about.json")
+
+  if [[ "$http_code" == "200" ]]; then
     break
   else
-    notify-send -i reddit -u critical "srsearch" "Subreddit Does Not Seem to Exist"
-    continue
+    notify-send -i reddit -u critical "srsearch" "Subreddit '$subreddit' does not exist"
   fi
 done
 
-# get search term
-if [ -n "$subreddit" ]; then
-  search_term=$(echo | fuzzel --dmenu --prompt "Enter Search Term: " | sed "s/ /%20/g")
-  search="$(echo 'https://www.reddit.com/r/SUBREDDIT/search/.json?q=SEARCH_TERM&restrict_sr=on&include_over_18=on' | sed "s/SUBREDDIT/$subreddit/" | sed "s/SEARCH_TERM/$search_term/")"
+# Get search term
+search_term=$(echo | fuzzel --dmenu --prompt "Enter Search Term:" | sed "s/ /%20/g")
+[[ -z "$search_term" ]] && notify-send -i reddit "srsearch" "No search term entered" && exit 1
+
+search_url="https://www.reddit.com/r/$subreddit/search/.json?q=$search_term&restrict_sr=on&include_over_18=on"
+
+notify-send -i reddit "srsearch" "Downloading JSON ..."
+curl -H "User-Agent: srsearch/1.0" -s "$search_url" > "$results_json"
+
+no_link=$(grep -c permalink "$results_json")
+
+if [[ ! -s "$results_json" || "$no_link" -eq 0 ]]; then
+  notify-send -i reddit "srsearch" "No Results Found"
+  exit 0
 fi
-# https://old.reddit.com/r/joi/search?q=angela&restrict_sr=on&include_over_18=on
 
-# getting link
-# use $search to view in browser
-if [ -n "$search_term" ]; then
-  # printf "Downloading Search Results For: %s ..." "$search"
-  notify-send -i reddit "srsearch" "Downloading JSON ..."
-  curl -H "User-Agent: 'your bot 0.1'" "$search" > "$results_json"
+while true; do
+  # Present results with dmenu
+  result=$(jq -r '.data.children[] | [.data.title, .data.permalink] | @tsv' "$results_json" | \
+    awk -F'\t' '{print $1 "|" $2}' | fuzzel --dmenu --prompt "Results:")
 
-  no_link="$(grep -c permalink $results_json)"
+  permalink=$(cut -d'|' -f2 <<< "$result" | xargs)
+  [[ -z "$permalink" ]] && break
 
-  # loop
-  while :
-  do
-    if [ -s "$results_json" ] && [ "$no_link" -ne 0 ]; then
-      permalink=$(jq -r '.data.children[] | .data["title", "permalink"]' "$results_json" | paste -d "|" - - | fuzzel --dmenu --prompt "Results: " | cut -d'|' -f 2 | xargs)
+  url="$base_site$permalink"
+  case "$1" in
+    clipboard)
+      echo "$url" | wl-copy
 
-      if [ -n "$permalink" ]; then
-        case "$1" in
-          clipboard)
-            echo "$base_site$permalink" | xclip -selection c
-            ;;
-          browser)
-            $BROWSER "$base_site$permalink"
-            ;;
-          *)
-            notify-send -i reddit "srsearch" "incorrect option"  # will remove later
-        esac
-      else
-        break
-      fi
-    else
-      notify-send -i reddit "srsearch" "No Results Found"
-      break
-    fi
-  done
-fi
+      notify-send -i reddit "srsearch" "Copied to clipboard: $url"
+      ;;
+    browser)
+      "${BROWSER:-xdg-open}" "$url"
+      notify-send -i reddit "srsearch" "Opened in browser: $url"
+      ;;
+  esac
+done
