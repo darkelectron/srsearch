@@ -9,7 +9,7 @@ Note: In cases where input is not required, `fzf` or `rofi` can be used.
 
 ## Dependencies
 - jq
-- dmenu
+- fuzzel/dmenu
 - xclip
 - curl
 
